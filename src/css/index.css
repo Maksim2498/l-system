@@ -22,6 +22,7 @@ label {
 
 input,
 button,
+textarea,
 .error,
 .term.input,
 #preset-select {
@@ -46,10 +47,6 @@ textarea {
 .input > *,
 #preset-select {
     margin-bottom: .5rem
-}
-
-.term.input {
-    padding: .5rem
 }
 
 .term.input input,
