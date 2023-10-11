@@ -34,6 +34,11 @@ export default (env: any) => {
         module: {
             rules: [
                 {
+                    test: /\.png$/i,
+                    type: "assert/resource",
+                },
+
+                {
                     test:    /\.ts$/i,
                     loader:  "ts-loader",
                     exclude: /node_modules/,
