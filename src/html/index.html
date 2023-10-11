@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>L-System</title>
+    </head>
+    <body>
+        <canvas id="main-canvas">
+            Canvas isn't supported by your browser
+        </canvas>
+
+        <div id="control-panel">
+            <div class="axiom input">
+                <label for="axiom-input">Axiom</label>
+                <textarea id="axiom-input"
+                          placeholder="expression"
+                          autocomplete="off"
+                          autocorrect="off"
+                          autocapitalize="off"
+                          spellcheck="false"></textarea>
+            </div>
+
+            <div id="terms-input-container" class="input-group">
+
+            </div>
+
+            <div class="input">
+                <label for="default-angle-input">Default angle:</label>
+                <input id="default-angle-input" type="number" value="5">
+            </div>
+
+            <div class="input">
+                <label for="iter-count-input">Number of iterations</label>
+                <input id="iter-count-input" type="number" value="5">
+            </div>
+
+            <button id="render-button">Render</button>
+        </div>
+    </body>
+</html>

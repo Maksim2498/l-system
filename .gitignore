@@ -1,0 +1,12 @@
+node_modules
+# WebPack
+/dist/
+
+# NodeJS
+node_modules/
+
+# VSCode
+.vscode/
+
+# Mac OS
+.DS_Store
