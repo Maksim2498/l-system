@@ -45,6 +45,14 @@ export function createTermInputContainerId(term: string): string {
     return `term-${term}`
 }
 
+export function createTermExprTextAreadId(term: string): string {
+    return `termexpr-${term}`
+}
+
+export function createTermScaleInputId(term: string): string {
+    return `termscale-${term}`
+}
+
 export function createTermInputContainer(
     term:    string,
     options: CreateTermInputContainerOptions = {}
@@ -52,11 +60,11 @@ export function createTermInputContainer(
     const containerId       = createTermInputContainerId(term)
     const container         = craeteContainer(containerId)
 
-    const exprTextAreaId    = `termexpr-${term}`
+    const exprTextAreaId    = createTermExprTextAreadId(term)
     const exprTextAreaLabel = createLabel(exprTextAreaId, term)
     const exprTextArea      = createExprTextArea(exprTextAreaId)
 
-    const scaleInputId      = `termscale-${term}`
+    const scaleInputId      = createTermScaleInputId(term)
     const scaleInputLabel   = createLabel(scaleInputId, `${term}'s scale`)
     const scaleInput        = createScaleInput(scaleInputId)
 
