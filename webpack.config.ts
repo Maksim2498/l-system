@@ -23,18 +23,19 @@ export default (env: any) => {
 
         plugins: [
             new MiniCssExtractPlugin({
-                filename: `index${production ? ".[contenthash]" : ""}.css`,
+                filename: `bundle${production ? ".[contenthash]" : ""}.css`,
             }),
             new HtmlPlugin({
-                template: "./src/html/index.html"
+                template: "./src/html/index.html",
+                favicon:  resolve(__dirname, "./src/images/favicon.png"),
             })
         ],
 
         module: {
             rules: [
                 {
-                    test:   /\.ts$/i,
-                    loader: "ts-loader",
+                    test:    /\.ts$/i,
+                    loader:  "ts-loader",
                     exclude: /node_modules/,
                 },
 
@@ -48,9 +49,10 @@ export default (env: any) => {
         resolve: {
             extensions: [".ts", ".js", ".mjs", ".json"],
             alias:      {
-                "css":  resolve(__dirname, "./src/css/"),
-                "html": resolve(__dirname, "./src/html/"),
-                "ts":   resolve(__dirname, "./src/ts/"),
+                "css":    resolve(__dirname, "./src/css/"),
+                "html":   resolve(__dirname, "./src/html/"),
+                "images": resolve(__dirname, "./src/images/"),
+                "ts":     resolve(__dirname, "./src/ts/"),
             },
         },
 
