@@ -106,6 +106,9 @@ try {
         termsInfo = new Map()
 
         for (const term of newTerms) {
+            if (termsInfo.has(term))
+                continue
+
             const oldInfo = oldTermsInfo.get(term)
 
             if (oldInfo != null) {
