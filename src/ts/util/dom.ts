@@ -116,6 +116,7 @@ export function createTermInputContainer(
         const input     = document.createElement("input")
         const initValue = options.initScale ?? 1
 
+        input.id          = id
         input.type        = "number"
         input.value       = initValue.toString()
         input.placeholder = "scale"
