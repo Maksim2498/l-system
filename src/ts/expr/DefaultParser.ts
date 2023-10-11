@@ -9,7 +9,7 @@ import { TurnNodeAngle,
          SaveNode, RestoreNode } from "./Node"
 
 export default class DefaultParser implements Parser {
-    private static readonly ANGLE_REGEX      = /^(\d+|\d*\.\d+)/
+    private static readonly ANGLE_REGEX      = /^(\d*\.\d+|\d+)/
     private static readonly TERM_REGEX       = /^[_a-zA-Z][_a-zA-Z0-9]*/
     private static readonly WHITESPACE_REGEX = /^\s+/
 
