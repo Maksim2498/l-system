@@ -68,13 +68,20 @@ export default class DefaultParser implements Parser {
         }
     }
 
+    private static readonly MINUS_LIKE = new Set([
+        "-",
+        "\u2012",
+        "\u2013",
+        "\u2014",
+        "\u2212",
+        "\uFF0D",
+    ])
+
     private parseNode(): Node {
         const char = this.expr[this.pos]
 
         switch (char) {
             case "+":
-            case "-":
-            case "\u2212": // Minus
                 return this.parseTurnNode()
 
             case "[":
@@ -84,6 +91,9 @@ export default class DefaultParser implements Parser {
                 return this.parseRestoreNode()
 
             default:
+                if (DefaultParser.MINUS_LIKE.has(char))
+                    return this.parseTurnNode()
+
                 if (DefaultParser.TERM_REGEX.test(char))
                     return this.parseTermNode()
 
@@ -126,19 +136,16 @@ export default class DefaultParser implements Parser {
 
         let counterClockwise: boolean
 
-        switch (this.expr[this.pos++]) {
-            case "+":
-                counterClockwise = false
-                break
+        const char = this.expr[this.pos]
 
-            case "-":
-            case "\u2212": // Minus
-                counterClockwise = true
-                break
+        if (char === "+")
+            counterClockwise = false
+        else if (DefaultParser.MINUS_LIKE.has(char))
+            counterClockwise = true
+        else
+            this.expected('"+" or "-"')
 
-            default:
-                this.expected('"+" or "-"')
-        }
+        ++this.pos
 
         this.skipWhitespace()
 
