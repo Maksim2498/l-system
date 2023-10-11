@@ -373,7 +373,7 @@ try {
 
         let needUpdate = false
 
-        for (const child of termsInputContainer.children) 
+        for (const child of termsInputContainer.children)
             if (!ids.has(child.id)) {
                 child.remove()
                 needUpdate = true
