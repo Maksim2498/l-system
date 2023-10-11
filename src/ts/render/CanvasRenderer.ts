@@ -27,7 +27,7 @@ interface State {
 export default class CanvasRenderer implements Renderer{
     readonly canvas: HTMLCanvasElement
 
-    lineWidth = 4
+    lineWidth = 1
     paddingX  = 25
     paddingY  = 25
 

@@ -32,6 +32,7 @@ try {
     const termsInputContainer = forceGetElementById("terms-input-container") as HTMLDivElement
     const iterCountInput      = forceGetElementById("iter-count-input")      as HTMLInputElement
     const defaultAngleInput   = forceGetElementById("default-angle-input")   as HTMLInputElement
+    const lineWidthInput      = forceGetElementById("line-width-input")      as HTMLInputElement
     const renderButton        = forceGetElementById("render-button")         as HTMLButtonElement
 
     let axiom        = DEFAULT_EXPR
@@ -50,6 +51,9 @@ try {
 
     defaultAngleInput.oninput = onDefaultAngleChange
     onDefaultAngleChange()
+
+    lineWidthInput.oninput = onLineWidthChange
+    onLineWidthChange()
 
     renderButton.onclick = onRender
     onRender()
@@ -105,6 +109,7 @@ try {
 
         termsInfo = new Map()
 
+        outer:
         for (const term of newTerms) {
             if (termsInfo.has(term))
                 continue
@@ -120,6 +125,12 @@ try {
                 expr:  DEFAULT_EXPR,
                 scale: DEFAULT_SCALE,
             })
+
+            const id = createTermInputContainerId(term)
+
+            for (const child of termsInputContainer.children)
+                if (child.id === id)
+                    continue outer
 
             termsInputContainer.appendChild(createSetupTermInputContainer(term))
         }
@@ -197,6 +208,21 @@ try {
             defaultAngle = value
         } catch (error) {
             addError(error, defaultAngleInput)
+        }
+    }
+
+    function onLineWidthChange() {
+        clearErrors(lineWidthInput)
+
+        try {
+            const value = Number(lineWidthInput.value)
+
+            if (Number.isNaN(value))
+                throw new Error("Not a number")
+
+            renderer.lineWidth = value
+        } catch (error) {
+            addError(error, lineWidthInput)
         }
     }
 
