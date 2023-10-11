@@ -5,14 +5,23 @@ import Expr                           from "./expr/Expr"
 import Renderer                       from "./render/CanvasRenderer"
 
 import { createActions              } from "./render/util"
+import { radiansToDegrees           } from "./util/math"
 import { forceGetElementById,
          addError, clearErrors,
          createTermInputContainer,
+         createTermExprTextAreadId,
          createTermInputContainerId } from "./util/dom"
 
 interface TermInfo {
     expr:  Expr
     scale: number
+}
+
+interface Predef {
+    name:          string
+    axiom:         string
+    terms?:        { [key: string]: string }
+    defaultAngle?: number
 }
 
 const DEFAULT_SCALE: number = 1
@@ -26,8 +35,151 @@ const DEFAULT_EXPR:  Expr  = {
     },
 } 
 
+const PREDEFS: Predef[] = [ 
+    {
+        name:  "Empty",
+        axiom: "",
+    },
+
+    {
+        defaultAngle: 90,
+        name:         "Harter-Haythaway's Dragon",
+        axiom:        "+97.5 F X",
+        terms:        {
+            F: "F",
+            X: "X + Y F +",
+            Y: "- F X - Y",
+        },
+    },
+
+    {
+        defaultAngle: 60,
+        name:         "Serpinsky Carpet",
+        axiom:        "F X F - - F F - - F F",
+        terms:        {
+            F: "F F",
+            X: "- - F X F + + F X F + + F X F - -",
+        },
+    },
+
+    {
+        defaultAngle: 90,
+        name:         "Hilbert Curve Filling the Plane",
+        axiom:        "X",
+        terms:        {
+            F: "F",
+            X: "- Y F + X F X + F Y -",
+            Y: "+ X F - Y F Y - F X +",
+        },
+    },
+
+    {
+        defaultAngle: 60,
+        name:         "Gosper Curve Filling the Plane",
+        axiom:        "X F",
+        terms:        {
+            F: "F",
+            X: "X + Y F + + Y F - F X - - F X F X - Y F +",
+            Y: "- F X + Y F Y F + + Y F + F X - - F X - Y",
+        },
+    },
+
+    {
+        defaultAngle: 90,
+        name:         "The Serpinsky Curve Filling the Plane",
+        axiom:        "+45 F",
+        terms:        {
+            F: "F - F + F + F +F - F - F - F + F",
+        },
+    },
+
+    {
+        defaultAngle: 22.5,
+        name:         "Bush",
+        axiom:        "F",
+        terms:        {
+            F: "- F + F + [ + F - F - ] - [ - F + F + F ]",
+        },
+    },
+
+    {
+        defaultAngle: 90,
+        name:         "Hagerty Mosaic",
+        axiom:        "F - F - F - F",
+        terms:        {
+            F: "F - B + F - F - F - F B - F + B - F + F + F + F B + F F",
+            B: "B B B B",
+        },
+    },
+
+    {
+        defaultAngle: 90,
+        name:         "Island",
+        axiom:        "F - F - F - F",
+        terms:        {
+            F: "F + F - F - F F F + F +F - F",
+        },
+    },
+
+    {
+        defaultAngle: 60,
+        name:         "Snowflake",
+        axiom:        "[ F ] + [ F ] + [ F ] + [ F ] + [ F ] + [ F ]",
+        terms:        {
+            F: "F [ + + F ] [ - F F ] F F [ + F ] [ - F ] F F",
+        },
+    },
+
+    {
+        defaultAngle: 60,
+        name:         "Koch 's Snowflake",
+        axiom:        "F + + F + + F",
+        terms:        {
+            F: "F - F + + F - F",
+        },
+    },
+
+    {
+        defaultAngle: 60,
+        name:         "The Peano Curve",
+        axiom:        "F",
+        terms:        {
+            F: "F - F + F + F + F - F - F - F + F",
+        },
+    },
+
+    {
+        defaultAngle: radiansToDegrees(Math.PI / 7),
+        name:         "Weed",
+        axiom:        "-90 F",
+        terms:        {
+            F: "F [ + F ] F [ - F ] F",
+        },
+    },
+
+    {
+        defaultAngle: radiansToDegrees(Math.PI / 16),
+        name:         "Flower",
+        axiom:        "-90 F [ + F + F ] [ - F - F ] [ + + F ] [ - - F ] F",
+        terms:        {
+            F: "F F [ + + F ] [ + F ] [ F ] [ - F ] [ - - F ]",
+        },
+    },
+
+    {
+        defaultAngle: 90,
+        name:         "Chain",
+        axiom:        "F + F + F + F",
+        terms:        {
+            F: "F + B - F - F F F + F + B - F",
+            B: "B B B",
+        },
+    },
+]
+
 try {
     const mainCanvas          = forceGetElementById("main-canvas")           as HTMLCanvasElement
+    const predefSelect        = forceGetElementById("preset-select")         as HTMLSelectElement
     const axiomInput          = forceGetElementById("axiom-input")           as HTMLTextAreaElement
     const termsInputContainer = forceGetElementById("terms-input-container") as HTMLDivElement
     const iterCountInput      = forceGetElementById("iter-count-input")      as HTMLInputElement
@@ -43,6 +195,11 @@ try {
     const exprParser = new ExprParser()
     const renderer   = new Renderer(mainCanvas)
 
+    initInPredefSelect()
+
+    predefSelect.onchange = onPredefChange
+    onPredefChange()
+
     axiomInput.oninput = onAxiomChange
     onAxiomChange()
 
@@ -57,6 +214,76 @@ try {
 
     renderButton.onclick = onRender
     onRender()
+
+    function initInPredefSelect() {
+        for (const option of PREDEFS.map(predefToOptionElement))
+            predefSelect.appendChild(option)
+
+        if (PREDEFS.length > 0)
+            predefSelect.selectedIndex = 0
+
+        return
+
+        function predefToOptionElement(predef: Predef, index: number): HTMLOptionElement {
+            const option = document.createElement("option")
+
+            option.innerHTML = `${index}. ${predef.name}`
+            option.value     = index.toString()
+
+            return option
+        }
+    }
+
+    function onPredefChange() {
+        const id     = Number(predefSelect.value)
+        const predef = PREDEFS[id]
+
+        if (predef == null)
+            return
+
+        const newDefaultAngle = predef.defaultAngle ?? 0
+        const newAxiomText    = predef.axiom
+        const newTermsText    = predef.terms        ?? {}
+
+        axiomInput.value = newAxiomText
+
+        try {
+            axiom = exprParser.parse(newAxiomText)
+        } catch (error) {
+            addError(error, axiomInput)
+        }
+
+        defaultAngleInput.value = newDefaultAngle.toString()
+        defaultAngle            = newDefaultAngle
+
+        const newTermsSet = new Set(Object.keys(newTermsText))
+
+        updateTerms(newTermsSet, false)
+        deleteUnusedElementsInTermsInputContainer()
+
+        for (const term of newTermsSet) {
+            const textAreaId = createTermExprTextAreadId(term)
+            const textArea   = document.getElementById(textAreaId) as HTMLTextAreaElement
+
+            if (textArea == null) {
+                console.error(`Missing input for term "${term}"`)
+                continue
+            }
+
+            const exprText = newTermsText[term]
+
+            textArea.value = exprText
+
+            try {
+                const expr = exprParser.parse(exprText)
+                const info = termsInfo.get(term)!
+
+                info.expr = expr
+            } catch (error) {
+                addError(error, textArea)
+            }
+        }
+    }
 
     function onAxiomChange() {
         clearErrors(axiomInput)
@@ -104,7 +331,7 @@ try {
         return newTerms
     }
 
-    function updateTerms(newTerms: Set<string>) {
+    function updateTerms(newTerms: Set<string>, recursive: boolean = true) {
         const oldTermsInfo = termsInfo
 
         termsInfo = new Map()
@@ -132,7 +359,9 @@ try {
                 if (child.id === id)
                     continue outer
 
-            termsInputContainer.appendChild(createSetupTermInputContainer(term))
+            const container = createSetupTermInputContainer(term, recursive)
+
+            termsInputContainer.appendChild(container)
         }
     }
 
@@ -154,7 +383,7 @@ try {
             onExprChange()
     }
 
-    function createSetupTermInputContainer(term: string) {
+    function createSetupTermInputContainer(term: string, recursive: boolean = true) {
         const info = termsInfo.get(term)!
 
         return createTermInputContainer(term, {
@@ -167,7 +396,8 @@ try {
 
                 info.expr = expr
 
-                onExprChange()
+                if (recursive)
+                    onExprChange()
             },
 
             onScaleChange(value) {

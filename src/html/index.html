@@ -10,9 +10,14 @@
         </canvas>
 
         <div id="control-panel">
+            <select id="preset-select"
+                    autocomplete="off">
+            </select>
+
             <div class="axiom input">
                 <label for="axiom-input">Axiom</label>
                 <textarea id="axiom-input"
+                          autofocus
                           placeholder="expression"
                           autocomplete="off"
                           autocorrect="off"
@@ -26,17 +31,29 @@
 
             <div class="input">
                 <label for="default-angle-input">Default angle:</label>
-                <input id="default-angle-input" type="number" value="5">
+                <input id="default-angle-input"
+                       type="number"
+                       autocomplete="off"
+                       step="10"
+                       value="30">
             </div>
 
             <div class="input">
                 <label for="iter-count-input">Number of iterations</label>
-                <input id="iter-count-input" type="number" value="5">
+                <input id="iter-count-input"
+                       type="number"
+                       autocomplete="off"
+                       min="0"
+                       value="5">
             </div>
 
             <div class="input">
                 <label for="line-width-input">Line width</label>
-                <input id="line-width-input" type="number" value="1">
+                <input id="line-width-input"
+                       type="number"
+                       autocomplete="off"
+                       min="0"
+                       value="1">
             </div>
 
             <button id="render-button">Render</button>
