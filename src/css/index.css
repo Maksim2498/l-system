@@ -7,11 +7,12 @@
 
 html,
 body,
-body > * {
+main,
+main > * {
     height: 100%
 }
 
-body {
+main {
     overflow: hidden;
     display: flex
 }
@@ -83,4 +84,10 @@ button {
     overflow-y: scroll;
     padding: 1rem;
     width: 20rem
+}
+
+#repo {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem
 }
