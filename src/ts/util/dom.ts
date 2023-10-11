@@ -34,8 +34,10 @@ export function clearErrors(element: HTMLElement) {
 }
 
 export interface CreateTermInputContainerOptions {
-    initExpr?:  string
-    initScale?: number
+    initExpr?:                     string
+    initScale?:                    number
+    callOnExprChangeAfterCreate?:  boolean
+    callOnScaleChangeAfterCreate?: boolean
 
     onExprChange?(value: string): void
     onScaleChange?(scale: number): void
@@ -104,7 +106,8 @@ export function createTermInputContainer(
             }
         }
 
-        options.onExprChange?.(initValue)
+        if (options.callOnExprChangeAfterCreate)
+            options.onExprChange?.(initValue)
 
         return textArea
     }
@@ -131,7 +134,8 @@ export function createTermInputContainer(
             }
         }
 
-        options.onScaleChange?.(initValue)
+        if (options.callOnScaleChangeAfterCreate)
+            options.onScaleChange?.(initValue)
 
         return input
     }

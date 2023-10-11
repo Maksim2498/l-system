@@ -259,7 +259,7 @@ try {
         const newTermsSet = new Set(Object.keys(newTermsText))
 
         updateTerms(newTermsSet, false)
-        deleteUnusedElementsInTermsInputContainer()
+        deleteUnusedElementsInTermsInputContainer(false)
 
         for (const term of newTermsSet) {
             const textAreaId = createTermExprTextAreadId(term)
@@ -365,7 +365,7 @@ try {
         }
     }
 
-    function deleteUnusedElementsInTermsInputContainer() {
+    function deleteUnusedElementsInTermsInputContainer(recursive: boolean = true) {
         const ids = new Set<string>()
 
         for (const term of termsInfo.keys())
@@ -379,16 +379,18 @@ try {
                 needUpdate = true
             }
 
-        if (needUpdate)
+        if (recursive && needUpdate)
             onExprChange()
     }
 
-    function createSetupTermInputContainer(term: string, recursive: boolean = true) {
+    function createSetupTermInputContainer(term: string, updateOnCreate: boolean = true) {
         const info = termsInfo.get(term)!
 
         return createTermInputContainer(term, {
-            initExpr:  info.expr.tree.expr,
-            initScale: info.scale,
+            initExpr:                     info.expr.tree.expr,
+            initScale:                    info.scale,
+            callOnExprChangeAfterCreate:  updateOnCreate,
+            callOnScaleChangeAfterCreate: updateOnCreate,
 
             onExprChange(value) {
                 const expr = exprParser.parse(value)
@@ -396,8 +398,7 @@ try {
 
                 info.expr = expr
 
-                if (recursive)
-                    onExprChange()
+                onExprChange()
             },
 
             onScaleChange(value) {
