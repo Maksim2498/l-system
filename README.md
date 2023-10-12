@@ -7,7 +7,7 @@
 - [Try](#try);
 - [Building](#building);
 - [Running](#running);
-- [Screenshots](#screenshots).
+- [Gallery](#gallery).
 
 ## About
 
@@ -56,6 +56,60 @@ npm start
 If no errors were emitted, a browser must open with running web-app.
 If browser didn't open automatically try to open [this page](http://localhost:8000).
 
-## Screenshots
+## Gallery
 
-***WIP***
+### Harter-Haythaway's Dragon
+
+![Harter-Haythaway's Dragon](./images/screenshots/harter-haythaways-dragon.png)
+
+### Serpinsky Carpet
+
+![Serpinsky Carpet](./images/screenshots/serpinsky-carpet.png)
+
+### Hilbert Curve Filling the Plane
+
+![Hilbert Curve Filling the Plane](./images/screenshots/hilbert-curve-filling-the-plane.png)
+
+### Gosper Curve Filling the Plane
+
+![Gosper Curve Filling the Plane](./images/screenshots/gosper-curve-filling-the-plane.png)
+
+### The Serpinsky Curve Filling the Plane
+
+![The Serpinsky Curve Filling the Plane](./images/screenshots/the-serpinsky-curve-filling-the-plane.png)
+
+### Bush
+
+![Bush](./images/screenshots/bush.png)
+
+### Hagerty Mosaic
+
+![Hagerty Mosaic](./images/screenshots/hagerty-mosaic.png)
+
+### Island
+
+![Island](./images/screenshots/island.png)
+
+### Snowflake
+
+![Snowflake](./images/screenshots/snowflake.png)
+
+### Koch's Snowflake
+
+![Koch's Snowflake](./images/screenshots/kochs-snowflake.png)
+
+### The Peano Curve
+
+![The Peano Curve](./images/screenshots/the-peano-curve.png)
+
+### Weed
+
+![Weed](./images/screenshots/weed.png)
+
+### Flower
+
+![Flower](./images/screenshots/flower.png)
+
+### Chain
+
+![Chain](./images/screenshots/chain.png)
