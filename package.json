@@ -4,7 +4,6 @@
     "version": "1.0.0",
     "description": "Web app for rendering fractals using L-system",
     "homepage": "https://hub.mos.ru/fominmv2498/l-system",
-    "main": "./src/index.ts",
     "scripts": {
         "start": "webpack serve --open",
         "build": "webpack --env production",
