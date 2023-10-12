@@ -4,6 +4,12 @@
     "version": "1.0.0",
     "description": "Web app for rendering fractals using L-system",
     "homepage": "https://hub.mos.ru/fominmv2498/l-system",
+    "author": "Maksim Victorovich Fomin",
+    "license": "SEE LICENSE IN LICENSE.md",
+    "repository": {
+        "type": "git",
+        "url": "git@hub.mos.ru:fominmv2498/l-system.git"
+    },
     "scripts": {
         "start": "webpack serve --open",
         "build": "webpack --env production",
@@ -24,15 +30,5 @@
         "webpack": "^5.88.2",
         "webpack-cli": "^5.1.4",
         "webpack-dev-server": "^4.15.1"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git@hub.mos.ru:fominmv2498/l-system.git"
-    },
-    "keywords": [
-        "l-system",
-        "fractal"
-    ],
-    "author": "Maksim Victorovich Fomin",
-    "license": "SEE LICENSE IN LICENSE.md"
+    }
 }
