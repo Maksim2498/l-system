@@ -132,7 +132,7 @@ const PREDEFS: Predef[] = [
 
     {
         defaultAngle: 60,
-        name:         "Koch 's Snowflake",
+        name:         "Koch's Snowflake",
         axiom:        "F + + F + + F",
         terms:        {
             F: "F - F + + F - F",
