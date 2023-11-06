@@ -27,8 +27,12 @@ export function getLineBeginIndex(string: string, from: number = 0): number {
     if (!isGoodIndex(from))
         return 0
 
-    while (string[from] != "\n" && from >= 0)
+    if (string[from] === "\n" && from + 1 < string.length)
+        return from + 1
+
+    do
         --from
+    while (string[from] != "\n" && from >= 0)
 
     return from + 1
 }
