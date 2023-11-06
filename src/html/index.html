@@ -12,52 +12,55 @@
 
             <div id="control-panel">
                 <select id="preset-select"
+                        class="with-border"
                         autocomplete="off">
                 </select>
 
                 <div class="axiom input">
                     <label for="axiom-input">Axiom</label>
                     <textarea id="axiom-input"
-                            autofocus
-                            placeholder="expression"
-                            autocomplete="off"
-                            autocorrect="off"
-                            autocapitalize="off"
-                            spellcheck="false"></textarea>
+                              class="with-border"
+                              autofocus
+                              placeholder="expression"
+                              autocomplete="off"
+                              autocorrect="off"
+                              autocapitalize="off"
+                              spellcheck="false"></textarea>
                 </div>
 
-                <div id="terms-input-container" class="input-group">
-
-                </div>
+                <div id="terms-input-container"></div>
 
                 <div class="input">
                     <label for="default-angle-input">Default angle:</label>
                     <input id="default-angle-input"
-                        type="number"
-                        autocomplete="off"
-                        step="10"
-                        value="30">
+                           class="with-border"
+                           type="number"
+                           autocomplete="off"
+                           step="10"
+                           value="30">
                 </div>
 
                 <div class="input">
                     <label for="iter-count-input">Number of iterations</label>
                     <input id="iter-count-input"
-                        type="number"
-                        autocomplete="off"
-                        min="0"
-                        value="5">
+                           class="with-border"
+                           type="number"
+                           autocomplete="off"
+                           min="0"
+                           value="5">
                 </div>
 
                 <div class="input">
                     <label for="line-width-input">Line width</label>
                     <input id="line-width-input"
-                        type="number"
-                        autocomplete="off"
-                        min="0"
-                        value="1">
+                           class="with-border"
+                           type="number"
+                           autocomplete="off"
+                           min="0"
+                           value="1">
                 </div>
 
-                <button id="render-button">Render</button>
+                <button id="render-button"class="with-border">Render</button>
             </div>
         </main>
         <footer>

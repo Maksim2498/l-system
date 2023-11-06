@@ -17,7 +17,7 @@ export function addError(error: unknown, element: HTMLElement) {
     const message      = error instanceof Error ? error.message
                                                 : String(error)
 
-    errorElement.className = "error"
+    errorElement.className = "error with-border"
     errorElement.innerHTML = message
 
     parent.insertBefore(errorElement, element.nextElementSibling)
@@ -81,7 +81,7 @@ export function createTermInputContainer(
         const inputContainer = document.createElement("div")
 
         inputContainer.id        = id
-        inputContainer.className = "term input"
+        inputContainer.className = "term input with-border"
 
         return inputContainer
     }
@@ -91,6 +91,7 @@ export function createTermInputContainer(
         const initValue = options.initExpr ?? ""
 
         textArea.id             = id
+        textArea.className      = "with-border"
         textArea.placeholder    = "expression"
         textArea.autocomplete   = "off"
         textArea.autocapitalize = "off"
@@ -117,6 +118,7 @@ export function createTermInputContainer(
         const initValue = options.initScale ?? 1
 
         input.id          = id
+        input.className   = "with-border"
         input.type        = "number"
         input.value       = initValue.toString()
         input.placeholder = "scale"

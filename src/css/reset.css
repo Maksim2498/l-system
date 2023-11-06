@@ -1,0 +1,44 @@
+* {
+    font-family: sans-serif;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body,
+main,
+main > * {
+    height: 100%;
+}
+
+body {
+    overflow: hidden;
+}
+
+main {
+    overflow: hidden;
+    display: flex;
+}
+
+label,
+select,
+button {
+    font-weight: bold;
+}
+
+button {
+    font-size: large;
+    padding: .5rem;
+}
+
+input,
+select,
+textarea {
+    padding: .25rem;
+    border-radius: .25rem;
+}
+
+textarea {
+    resize: vertical;
+}

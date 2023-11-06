@@ -1,0 +1,4 @@
+#main-canvas {
+    width: calc(100% - 20rem);
+    height: 100%;
+}

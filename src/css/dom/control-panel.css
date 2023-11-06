@@ -1,0 +1,19 @@
+#control-panel {
+    display: flex;
+    flex-direction: column;
+
+    width: 20rem;
+    height: 100%;
+
+    padding: 1rem;
+
+    overflow-y: auto;
+
+    border-left: 1px solid black;
+}
+
+#control-panel > :not(:first-child) {
+    margin-top: 1rem;
+}
+
+@import url("./terms-input-container.css");

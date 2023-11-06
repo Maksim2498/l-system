@@ -1,0 +1,8 @@
+.error {
+    font-size: small;
+    font-family: monospace;
+    white-space: pre;
+    color: red;
+    padding: .5rem;
+    overflow: auto;
+}
