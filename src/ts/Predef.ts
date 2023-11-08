@@ -7,6 +7,7 @@ export interface TermDef {
     expr:       string
     scale?:     number
     lineWidth?: number
+    color?:     string
 }
 
 export interface ReadonlyTermDef extends Readonly<TermDef> {}
@@ -38,15 +39,18 @@ export const ARRAY: readonly ReadonlyPredef[] = [
         axiom:        "+97.5 F X",
         terms:        {
             F: {
-                expr: "F",
+                expr:  "F",
+                color: "#942192",
             },
 
             X: {
-                expr: "X + Y F +",
+                expr:  "X + Y F +",
+                color: "#FF40FF",
             },
 
             Y: {
-                expr: "- F X - Y",
+                expr:  "- F X - Y",
+                color: "#FF2600",
             },
         },
     },
@@ -91,15 +95,18 @@ export const ARRAY: readonly ReadonlyPredef[] = [
         axiom:        "X F",
         terms:        {
             F: {
-                expr: "F",
+                expr:  "F",
+                color: "#FF0000",
             },
 
             X: {
-                expr: "X + Y F + + Y F - F X - - F X F X - Y F +",
+                expr:  "X + Y F + + Y F - F X - - F X F X - Y F +",
+                color: "#00FF00",
             },
 
             Y: {
-                expr: "- F X + Y F Y F + + Y F + F X - - F X - Y",
+                expr:  "- F X + Y F Y F + + Y F + F X - - F X - Y",
+                color: "#0000FF",
             },
         },
     },
@@ -121,7 +128,8 @@ export const ARRAY: readonly ReadonlyPredef[] = [
         axiom:        "F",
         terms:        {
             F: {
-                expr: "- F + F + [ + F - F - ] - [ - F + F + F ]",
+                expr:  "- F + F + [ + F - F - ] - [ - F + F + F ]",
+                color: "#006B00",
             },
         },
     },
@@ -159,7 +167,8 @@ export const ARRAY: readonly ReadonlyPredef[] = [
         axiom:        "[ F ] + [ F ] + [ F ] + [ F ] + [ F ] + [ F ]",
         terms:        {
             F: {
-                expr: "F [ + + F ] [ - F F ] F F [ + F ] [ - F ] F F",
+                expr:  "F [ + + F ] [ - F F ] F F [ + F ] [ - F ] F F",
+                color: "#00FCFF",
             },
         },
     },
@@ -170,7 +179,8 @@ export const ARRAY: readonly ReadonlyPredef[] = [
         axiom:        "F + + F + + F",
         terms:        {
             F: {
-                expr: "F - F + + F - F",
+                expr:  "F - F + + F - F",
+                color: "#00FCFF",
             },
         },
     },
@@ -192,7 +202,8 @@ export const ARRAY: readonly ReadonlyPredef[] = [
         axiom:        "-90 F",
         terms:        {
             F: {
-                expr: "F [ + F ] F [ - F ] F",
+                expr:  "F [ + F ] F [ - F ] F",
+                color: "#006B00",
             },
         },
     },

@@ -15,6 +15,7 @@ export interface DrawLine extends Base {
     type:  "draw-line"
     scale: number
     width: number
+    color: string
 }
 
 export interface ReadonlyDrawLine extends Readonly<DrawLine> {}

@@ -9,21 +9,21 @@ export const DEFAULT_ITER_COUNT         = 5
 export const DEFAULT_DEFAULT_ANGLE      = 30
 export const DEFAULT_DEFAULT_SCALE      = 1
 export const DEFAULT_DEFAULT_LINE_WIDTH = 1
+export const DEFAULT_DEFAULT_COLOR      = "#000"
 
 
 export interface TermInfo {
     expr:      Expr
     scale:     number
     lineWidth: number
+    color:     string
 }
 
 export interface ReadonlyTermInfo extends DeepReadonly<TermInfo> {}
 
 
-export interface PartialTermInfo {
-    expr:       Expr
-    scale?:     number
-    lineWidth?: number
+export interface PartialTermInfo extends Partial<TermInfo> {
+    expr: Expr
 }
 
 export interface ReadonlyPartialTerminfo extends DeepReadonly<PartialTermInfo> {}
@@ -36,6 +36,7 @@ export interface CreateActionsOptions {
     defaultAngle?:     number
     defaultScale?:     number
     defaultLineWidth?: number
+    defaultColor?:     string
 }
 
 export interface ReadonlyCreateActionsOptions extends DeepReadonly<CreateActionsOptions> {}
@@ -46,6 +47,7 @@ export function createActions(options: ReadonlyCreateActionsOptions): action.Act
     const defaultAngle     = options.defaultAngle     ?? DEFAULT_DEFAULT_ANGLE
     const defaultScale     = options.defaultScale     ?? DEFAULT_DEFAULT_SCALE
     const defaultLineWidth = options.defaultLineWidth ?? DEFAULT_DEFAULT_LINE_WIDTH
+    const defaultColor     = options.defaultColor     ?? DEFAULT_DEFAULT_COLOR
     const termsInfo        = (options.termsInfo instanceof Map
         ? options.termsInfo
         : new Map(
@@ -94,6 +96,7 @@ export function createActions(options: ReadonlyCreateActionsOptions): action.Act
                     type:  "draw-line",
                     scale: info?.scale     ?? defaultScale,
                     width: info?.lineWidth ?? defaultLineWidth,
+                    color: info?.color     ?? defaultColor,
                 }]
             }
                 

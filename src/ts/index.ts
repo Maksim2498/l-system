@@ -16,6 +16,7 @@ import { TermInfo         } from "./render/util"
 const TERM_INPUT_CONTANER_ID_PREFIX = "term-"
 
 const DEFAULT_LINE_WIDTH: number       = 1
+const DEFAULT_COLOR:      string       = "#000"
 const DEFAULT_SCALE:      number       = 1
 const DEFAULT_EXPR:       ReadonlyExpr = {
     terms: new Set(),
@@ -129,7 +130,7 @@ try {
 
             const termExprErrors = new Map<string, unknown>()
 
-            for (const [term, { expr, scale, lineWidth }] of newTermDefs) {
+            for (const [term, { expr, scale, lineWidth, color }] of newTermDefs) {
                 const info = forceGetTermInfo(term)
 
                 try {
@@ -144,6 +145,9 @@ try {
 
                 if (lineWidth != null)
                     info.lineWidth = lineWidth
+
+                if (color != null)
+                    info.color = color
             }
 
             createMissingTermInputContainers()
@@ -270,6 +274,7 @@ try {
                     expr:      copyExpr(DEFAULT_EXPR),
                     scale:     DEFAULT_SCALE,
                     lineWidth: DEFAULT_LINE_WIDTH,
+                    color:     DEFAULT_COLOR,
                 }
 
                 termsInfo.set(term, info)
@@ -387,6 +392,25 @@ try {
                 oninput:     onTermLineWidthChange,
             },
         ) as HTMLInputElement
+        
+
+        const colorInputId = `termcolor-${term}`
+
+        const colorInputLabel = h(
+            "label",
+            { htmlFor: colorInputId },
+            "Color",
+        )
+
+        const colorInput = h(
+            `input.with-border#${colorInputId}`,
+            {
+                placeholder: "color",
+                type:        "color",
+                value:       info?.color ?? DEFAULT_COLOR,
+                oninput:     onTermColorChange,
+            },
+        ) as HTMLInputElement
 
         
         return h(
@@ -400,6 +424,9 @@ try {
 
             lineWidthInputLabel,
             lineWidthInput,
+
+            colorInputLabel,
+            colorInput,
         )
 
 
@@ -427,6 +454,12 @@ try {
 
                 info.lineWidth = number
             })
+        }
+
+        function onTermColorChange() {
+            const info = forceGetTermInfo(term)
+
+            info.color = colorInput.value
         }
     }
 

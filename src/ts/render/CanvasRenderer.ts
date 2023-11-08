@@ -15,11 +15,12 @@ interface State {
 }
 
 
-interface LineWithWidth extends Line {
+interface VisualLine extends Line {
     width: number
+    color: string
 }
 
-interface ReadonlyLineWithWidth extends Readonly<LineWithWidth> {}
+interface ReadonlyVisualLine extends Readonly<VisualLine> {}
 
 
 export default class CanvasRenderer implements Renderer{
@@ -74,8 +75,8 @@ export default class CanvasRenderer implements Renderer{
         this.drawLines(lines)
     }
 
-    private createLines(actions: action.ReadonlyAction[]): LineWithWidth[] {
-        const lines:  LineWithWidth[] = []
+    private createLines(actions: action.ReadonlyAction[]): VisualLine[] {
+        const lines:  VisualLine[] = []
         const states: State[]         = [{
             pos:   [0, 0],
             angle: 0,
@@ -84,15 +85,21 @@ export default class CanvasRenderer implements Renderer{
         for (const action of actions) {
             switch (action.type) {
                 case "draw-line":
-                    const width     = action.width
                     const lastState = states[states.length - 1]
                     const angle     = math.degreesToRadians(lastState.angle)
                     const scale     = this.baseLineScale * action.scale
                     const delta     = vec2.rotated(scale, angle)
                     const from      = vec2.copy(lastState.pos)
                     const to        = vec2.sum(from, delta)
+                    const width     = action.width
+                    const color     = action.color
 
-                    lines.push({ from, to, width })
+                    lines.push({
+                        width,
+                        color,
+                        from,
+                        to,
+                    })
 
                     lastState.pos = vec2.copy(to)
 
@@ -120,16 +127,17 @@ export default class CanvasRenderer implements Renderer{
         return lines
     }
 
-    private drawLines(lines: ReadonlyLineWithWidth[]) {
+    private drawLines(lines: ReadonlyVisualLine[]) {
         this.ctx.save()
 
-        for (const { from, to, width } of lines) {
-            this.ctx.lineWidth = width
-
+        for (const { from, to, width, color } of lines) {
             if (width === 0) {
                 this.ctx.moveTo(from[0], from[1])
                 continue
             }
+
+            this.ctx.lineWidth   = width
+            this.ctx.strokeStyle = color
 
             this.ctx.beginPath()
             this.ctx.moveTo(from[0], from[1])

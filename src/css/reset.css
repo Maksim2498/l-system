@@ -40,6 +40,17 @@ textarea {
     border-radius: .25rem;
 }
 
+input,
+select,
+button,
+textarea {
+    width: 100%;
+}
+
 textarea {
     resize: vertical;
+}
+
+input[type="color"] {
+    padding: 0;
 }
