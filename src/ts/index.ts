@@ -15,8 +15,9 @@ import { TermInfo         } from "./render/util"
 
 const TERM_INPUT_CONTANER_ID_PREFIX = "term-"
 
-const DEFAULT_SCALE: number = 1
-const DEFAULT_EXPR:  ReadonlyExpr   = {
+const DEFAULT_LINE_WIDTH: number       = 1
+const DEFAULT_SCALE:      number       = 1
+const DEFAULT_EXPR:       ReadonlyExpr = {
     terms: new Set(),
     tree:  {
         type:   "end",
@@ -33,7 +34,6 @@ try {
     const termsInputContainerDiv = dom.forceGetElementById("terms-input-container-div") as HTMLDivElement
     const iterCountInput         = dom.forceGetElementById("iter-count-input"         ) as HTMLInputElement
     const defaultAngleInput      = dom.forceGetElementById("default-angle-input"      ) as HTMLInputElement
-    const lineWidthInput         = dom.forceGetElementById("line-width-input"         ) as HTMLInputElement
     const renderButton           = dom.forceGetElementById("render-button"            ) as HTMLButtonElement
 
 
@@ -59,9 +59,6 @@ try {
 
     defaultAngleInput.oninput = onDefaultAngleChange
     onDefaultAngleChange()
-
-    lineWidthInput.oninput = onLineWidthChange
-    onLineWidthChange()
 
     renderButton.onclick = onRender
     onRender()
@@ -132,7 +129,7 @@ try {
 
             const termExprErrors = new Map<string, unknown>()
 
-            for (const [term, { expr, scale }] of newTermDefs) {
+            for (const [term, { expr, scale, lineWidth }] of newTermDefs) {
                 const info = forceGetTermInfo(term)
 
                 try {
@@ -144,6 +141,9 @@ try {
 
                 if (scale != null)
                     info.scale = scale
+
+                if (lineWidth != null)
+                    info.lineWidth = lineWidth
             }
 
             createMissingTermInputContainers()
@@ -182,10 +182,6 @@ try {
         dom.onNumberChange(defaultAngleInput, number => defaultAngle = number)
     }
 
-    function onLineWidthChange() {
-        dom.onNumberChange(lineWidthInput, number => renderer.lineWidth = number)
-    }
-
     function onRender() {
         const laodingElement = h("div#loading")
 
@@ -197,7 +193,7 @@ try {
                     defaultAngle,
                     iterCount,
                     axiom,
-                    terms: termsInfo,
+                    termsInfo: termsInfo,
                 })
 
                 renderer.render(actions)
@@ -271,8 +267,9 @@ try {
                     continue
 
                 const info: TermInfo = {
-                    expr:  copyExpr(DEFAULT_EXPR),
-                    scale: DEFAULT_SCALE,
+                    expr:      copyExpr(DEFAULT_EXPR),
+                    scale:     DEFAULT_SCALE,
+                    lineWidth: DEFAULT_LINE_WIDTH,
                 }
 
                 termsInfo.set(term, info)
@@ -359,7 +356,7 @@ try {
         const scaleInputLabel = h(
             "label",
             { htmlFor: scaleInputId },
-            `${term}'s Scale`,
+            "Scale",
         )
 
         const scaleInput = h(
@@ -372,6 +369,25 @@ try {
             },
         ) as HTMLInputElement
 
+
+        const lineWidthInputId = `termlinewidth-${term}`
+
+        const lineWidthInputLabel = h(
+            "label",
+            { htmlFor: lineWidthInputId },
+            "Line Width",
+        )
+
+        const lineWidthInput = h(
+            `input.with-border#${lineWidthInputId}`,
+            {
+                placeholder: "line width",
+                type:        "number",
+                value:       info?.lineWidth ?? DEFAULT_LINE_WIDTH,
+                oninput:     onTermLineWidthChange,
+            },
+        ) as HTMLInputElement
+
         
         return h(
             `div.term.input.with-border#${termToInputContainerId(term)}`,
@@ -381,6 +397,9 @@ try {
 
             scaleInputLabel,
             scaleInput,
+
+            lineWidthInputLabel,
+            lineWidthInput,
         )
 
 
@@ -399,6 +418,14 @@ try {
                 const info = forceGetTermInfo(term)
 
                 info.scale = number
+            })
+        }
+
+        function onTermLineWidthChange() {
+            dom.onNumberChange(lineWidthInput, number => {
+                const info = forceGetTermInfo(term)
+
+                info.lineWidth = number
             })
         }
     }

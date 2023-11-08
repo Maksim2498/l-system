@@ -4,8 +4,9 @@ import { radiansToDegrees } from "./util/math"
 
 
 export interface TermDef {
-    expr:   string
-    scale?: number
+    expr:       string
+    scale?:     number
+    lineWidth?: number
 }
 
 export interface ReadonlyTermDef extends Readonly<TermDef> {}
@@ -135,7 +136,8 @@ export const ARRAY: readonly ReadonlyPredef[] = [
             },
 
             B: {
-                expr: "B B B B",
+                expr:      "B B B B",
+                lineWidth: 0,
             },
         },
     },
@@ -216,7 +218,8 @@ export const ARRAY: readonly ReadonlyPredef[] = [
             },
 
             B: {
-                expr: "B B B",
+                expr:      "B B B",
+                lineWidth: 0,
             },
         },
     },

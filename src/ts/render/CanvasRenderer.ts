@@ -15,9 +15,15 @@ interface State {
 }
 
 
+interface LineWithWidth extends Line {
+    width: number
+}
+
+interface ReadonlyLineWithWidth extends Readonly<LineWithWidth> {}
+
+
 export default class CanvasRenderer implements Renderer{
-    lineWidth: number = 1
-    padding:   Vec2   = [25, 25]
+    padding: Vec2 = [25, 25]
 
     private ctx:           CanvasRenderingContext2D
     private baseLineScale: number = 100
@@ -68,9 +74,9 @@ export default class CanvasRenderer implements Renderer{
         this.drawLines(lines)
     }
 
-    private createLines(actions: action.ReadonlyAction[]): Line[] {
-        const lines:  Line[]  = []
-        const states: State[] = [{
+    private createLines(actions: action.ReadonlyAction[]): LineWithWidth[] {
+        const lines:  LineWithWidth[] = []
+        const states: State[]         = [{
             pos:   [0, 0],
             angle: 0,
         }]
@@ -78,6 +84,7 @@ export default class CanvasRenderer implements Renderer{
         for (const action of actions) {
             switch (action.type) {
                 case "draw-line":
+                    const width     = action.width
                     const lastState = states[states.length - 1]
                     const angle     = math.degreesToRadians(lastState.angle)
                     const scale     = this.baseLineScale * action.scale
@@ -85,7 +92,7 @@ export default class CanvasRenderer implements Renderer{
                     const from      = vec2.copy(lastState.pos)
                     const to        = vec2.sum(from, delta)
 
-                    lines.push({ from, to })
+                    lines.push({ from, to, width })
 
                     lastState.pos = vec2.copy(to)
 
@@ -113,19 +120,22 @@ export default class CanvasRenderer implements Renderer{
         return lines
     }
 
-    private drawLines(lines: line.ReadonlyLine[]) {
+    private drawLines(lines: ReadonlyLineWithWidth[]) {
         this.ctx.save()
 
-        this.ctx.lineWidth = this.lineWidth
+        for (const { from, to, width } of lines) {
+            this.ctx.lineWidth = width
 
-        this.ctx.beginPath()
+            if (width === 0) {
+                this.ctx.moveTo(from[0], from[1])
+                continue
+            }
 
-        for (const { from, to } of lines) {
+            this.ctx.beginPath()
             this.ctx.moveTo(from[0], from[1])
-            this.ctx.lineTo(to[0],   to[1]  )
+            this.ctx.lineTo(  to[0],   to[1])
+            this.ctx.stroke()
         }
-
-        this.ctx.stroke()
 
         this.ctx.restore()
     }

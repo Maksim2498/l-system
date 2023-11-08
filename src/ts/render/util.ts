@@ -5,41 +5,54 @@ import * as node    from "ts/expr/Node"
 import * as action  from "./Action"
 
 
-export const DEFAULT_ITER_COUNT    = 5
-export const DEFAULT_DEFAULT_ANGLE = 30
-export const DEFAULT_DEFAULT_SCALE = 1
+export const DEFAULT_ITER_COUNT         = 5
+export const DEFAULT_DEFAULT_ANGLE      = 30
+export const DEFAULT_DEFAULT_SCALE      = 1
+export const DEFAULT_DEFAULT_LINE_WIDTH = 1
 
 
 export interface TermInfo {
-    expr:  Expr
-    scale: number
+    expr:      Expr
+    scale:     number
+    lineWidth: number
 }
 
 export interface ReadonlyTermInfo extends DeepReadonly<TermInfo> {}
 
 
+export interface PartialTermInfo {
+    expr:       Expr
+    scale?:     number
+    lineWidth?: number
+}
+
+export interface ReadonlyPartialTerminfo extends DeepReadonly<PartialTermInfo> {}
+
+
 export interface CreateActionsOptions {
-    axiom:         Expr
-    terms?:        Map<string, TermInfo> | { [key: string]: TermInfo }
-    iterCount?:    number
-    defaultAngle?: number
-    defaultScale?: number
+    axiom:             Expr
+    termsInfo?:        Map<string, PartialTermInfo> | { [key: string]: PartialTermInfo }
+    iterCount?:        number
+    defaultAngle?:     number
+    defaultScale?:     number
+    defaultLineWidth?: number
 }
 
 export interface ReadonlyCreateActionsOptions extends DeepReadonly<CreateActionsOptions> {}
 
 export function createActions(options: ReadonlyCreateActionsOptions): action.Action[] {
-    const axiom        = options.axiom
-    const iterCount    = options.iterCount    ?? DEFAULT_ITER_COUNT
-    const defaultAngle = options.defaultAngle ?? DEFAULT_DEFAULT_ANGLE
-    const defaultScale = options.defaultScale ?? DEFAULT_DEFAULT_SCALE
-    const terms        = options.terms instanceof Map
-        ? options.terms
+    const axiom            = options.axiom
+    const iterCount        = options.iterCount        ?? DEFAULT_ITER_COUNT
+    const defaultAngle     = options.defaultAngle     ?? DEFAULT_DEFAULT_ANGLE
+    const defaultScale     = options.defaultScale     ?? DEFAULT_DEFAULT_SCALE
+    const defaultLineWidth = options.defaultLineWidth ?? DEFAULT_DEFAULT_LINE_WIDTH
+    const termsInfo        = (options.termsInfo instanceof Map
+        ? options.termsInfo
         : new Map(
-            options.terms != null
-                ? Object.entries(options.terms)
+            options.termsInfo != null
+                ? Object.entries(options.termsInfo)
                 : undefined
-        )
+        )) as Map<string, PartialTermInfo>
 
     let tree = axiom.tree
 
@@ -59,7 +72,7 @@ export function createActions(options: ReadonlyCreateActionsOptions): action.Act
                 }
             
             case "term":
-                return terms.get(tree.term)?.expr.tree ?? tree
+                return termsInfo.get(tree.term)?.expr.tree ?? tree
 
             default:
                 return tree
@@ -74,11 +87,15 @@ export function createActions(options: ReadonlyCreateActionsOptions): action.Act
                 
                 return left.concat(right)
 
-            case "term":
+            case "term": {
+                const info = termsInfo.get(tree.term)
+
                 return [{
                     type:  "draw-line",
-                    scale: terms.get(tree.term)?.scale ?? defaultScale,
+                    scale: info?.scale     ?? defaultScale,
+                    width: info?.lineWidth ?? defaultLineWidth,
                 }]
+            }
                 
             case "turn":
                 let angle: number
