@@ -1,30 +1,45 @@
-import Expr   from "ts/expr/Expr"
-import Node   from "ts/expr/Node"
-import Action from "./Action"
+import DeepReadonly from "ts/util/DeepReadonly"
+import Expr         from "ts/expr/Expr"
+
+import * as node    from "ts/expr/Node"
+import * as action  from "./Action"
+
 
 export const DEFAULT_ITER_COUNT    = 5
 export const DEFAULT_DEFAULT_ANGLE = 30
 export const DEFAULT_DEFAULT_SCALE = 1
+
 
 export interface TermInfo {
     expr:  Expr
     scale: number
 }
 
+export interface ReadonlyTermInfo extends DeepReadonly<TermInfo> {}
+
+
 export interface CreateActionsOptions {
     axiom:         Expr
-    terms?:        Map<string, TermInfo>
+    terms?:        Map<string, TermInfo> | { [key: string]: TermInfo }
     iterCount?:    number
     defaultAngle?: number
     defaultScale?: number
 }
 
-export function createActions(options: CreateActionsOptions): Action[] {
+export interface ReadonlyCreateActionsOptions extends DeepReadonly<CreateActionsOptions> {}
+
+export function createActions(options: ReadonlyCreateActionsOptions): action.Action[] {
     const axiom        = options.axiom
-    const terms        = options.terms        ?? new Map<string, TermInfo>()
     const iterCount    = options.iterCount    ?? DEFAULT_ITER_COUNT
     const defaultAngle = options.defaultAngle ?? DEFAULT_DEFAULT_ANGLE
     const defaultScale = options.defaultScale ?? DEFAULT_DEFAULT_SCALE
+    const terms        = options.terms instanceof Map
+        ? options.terms
+        : new Map(
+            options.terms != null
+                ? Object.entries(options.terms)
+                : undefined
+        )
 
     let tree = axiom.tree
 
@@ -33,7 +48,7 @@ export function createActions(options: CreateActionsOptions): Action[] {
 
     return treeToActions(tree)
 
-    function replacedTree(tree: Node): Node {
+    function replacedTree(tree: node.ReadonlyNode): node.ReadonlyNode {
         switch (tree.type) {
             case "concat":
                 return {
@@ -51,7 +66,7 @@ export function createActions(options: CreateActionsOptions): Action[] {
         }
     }
 
-    function treeToActions(tree: Node): Action[] {
+    function treeToActions(tree: node.ReadonlyNode): action.Action[] {
         switch (tree.type) {
             case "concat":
                 const left  = treeToActions(tree.left)
@@ -61,7 +76,7 @@ export function createActions(options: CreateActionsOptions): Action[] {
 
             case "term":
                 return [{
-                    type: "draw-line",
+                    type:  "draw-line",
                     scale: terms.get(tree.term)?.scale ?? defaultScale,
                 }]
                 

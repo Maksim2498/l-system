@@ -30,6 +30,7 @@ button {
 button {
     font-size: large;
     padding: .5rem;
+    cursor: pointer;
 }
 
 input,

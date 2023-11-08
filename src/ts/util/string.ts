@@ -5,6 +5,8 @@ export interface LineInfo {
     endIndex:   number
 }
 
+export interface ReadonlyLineInfo extends Readonly<LineInfo> {}
+
 export function getLine(string: string, at: number): string {
     return getLineInfo(string, at).text
 }

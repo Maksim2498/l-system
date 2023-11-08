@@ -1,3 +1,5 @@
+@import url("./terms-input-container-div.css");
+
 #control-panel {
     display: flex;
     flex-direction: column;
@@ -15,5 +17,3 @@
 #control-panel > :not(:first-child) {
     margin-top: 1rem;
 }
-
-@import url("./terms-input-container.css");

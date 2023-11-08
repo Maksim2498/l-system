@@ -1,31 +1,22 @@
 import "css/index.css"
 
-import ExprParser                     from "./expr/DefaultParser"
-import Expr                           from "./expr/Expr"
-import Renderer                       from "./render/CanvasRenderer"
+import h                    from "hyperscript"
+import ExprParser           from "./expr/DefaultParser"
+import Renderer             from "./render/CanvasRenderer"
 
-import { createActions              } from "./render/util"
-import { radiansToDegrees           } from "./util/math"
-import { forceGetElementById,
-         addError, clearErrors,
-         createTermInputContainer,
-         createTermExprTextAreadId,
-         createTermInputContainerId } from "./util/dom"
+import * as dom             from "./util/dom"
+import * as render          from "./render/util"
+import * as predef          from "./Predef"
 
-interface TermInfo {
-    expr:  Expr
-    scale: number
-}
+import { ReadonlyExpr,
+         copy as copyExpr } from "./expr/Expr"
+import { TermInfo         } from "./render/util"
 
-interface Predef {
-    name:          string
-    axiom:         string
-    terms?:        { [key: string]: string }
-    defaultAngle?: number
-}
+
+const TERM_INPUT_CONTANER_ID_PREFIX = "term-"
 
 const DEFAULT_SCALE: number = 1
-const DEFAULT_EXPR:  Expr  = {
+const DEFAULT_EXPR:  ReadonlyExpr   = {
     terms: new Set(),
     tree:  {
         type:   "end",
@@ -35,172 +26,32 @@ const DEFAULT_EXPR:  Expr  = {
     },
 } 
 
-const PREDEFS: Predef[] = [ 
-    {
-        name:  "Empty",
-        axiom: "",
-    },
-
-    {
-        defaultAngle: 90,
-        name:         "Harter-Haythaway's Dragon",
-        axiom:        "+97.5 F X",
-        terms:        {
-            F: "F",
-            X: "X + Y F +",
-            Y: "- F X - Y",
-        },
-    },
-
-    {
-        defaultAngle: 60,
-        name:         "Serpinsky Carpet",
-        axiom:        "F X F - - F F - - F F",
-        terms:        {
-            F: "F F",
-            X: "- - F X F + + F X F + + F X F - -",
-        },
-    },
-
-    {
-        defaultAngle: 90,
-        name:         "Hilbert Curve Filling the Plane",
-        axiom:        "X",
-        terms:        {
-            F: "F",
-            X: "- Y F + X F X + F Y -",
-            Y: "+ X F - Y F Y - F X +",
-        },
-    },
-
-    {
-        defaultAngle: 60,
-        name:         "Gosper Curve Filling the Plane",
-        axiom:        "X F",
-        terms:        {
-            F: "F",
-            X: "X + Y F + + Y F - F X - - F X F X - Y F +",
-            Y: "- F X + Y F Y F + + Y F + F X - - F X - Y",
-        },
-    },
-
-    {
-        defaultAngle: 90,
-        name:         "The Serpinsky Curve Filling the Plane",
-        axiom:        "+45 F",
-        terms:        {
-            F: "F - F + F + F +F - F - F - F + F",
-        },
-    },
-
-    {
-        defaultAngle: 22.5,
-        name:         "Bush",
-        axiom:        "F",
-        terms:        {
-            F: "- F + F + [ + F - F - ] - [ - F + F + F ]",
-        },
-    },
-
-    {
-        defaultAngle: 90,
-        name:         "Hagerty Mosaic",
-        axiom:        "F - F - F - F",
-        terms:        {
-            F: "F - B + F - F - F - F B - F + B - F + F + F + F B + F F",
-            B: "B B B B",
-        },
-    },
-
-    {
-        defaultAngle: 90,
-        name:         "Island",
-        axiom:        "F - F - F - F",
-        terms:        {
-            F: "F + F - F - F F F + F +F - F",
-        },
-    },
-
-    {
-        defaultAngle: 60,
-        name:         "Snowflake",
-        axiom:        "[ F ] + [ F ] + [ F ] + [ F ] + [ F ] + [ F ]",
-        terms:        {
-            F: "F [ + + F ] [ - F F ] F F [ + F ] [ - F ] F F",
-        },
-    },
-
-    {
-        defaultAngle: 60,
-        name:         "Koch's Snowflake",
-        axiom:        "F + + F + + F",
-        terms:        {
-            F: "F - F + + F - F",
-        },
-    },
-
-    {
-        defaultAngle: 60,
-        name:         "The Peano Curve",
-        axiom:        "F",
-        terms:        {
-            F: "F - F + F + F + F - F - F - F + F",
-        },
-    },
-
-    {
-        defaultAngle: radiansToDegrees(Math.PI / 7),
-        name:         "Weed",
-        axiom:        "-90 F",
-        terms:        {
-            F: "F [ + F ] F [ - F ] F",
-        },
-    },
-
-    {
-        defaultAngle: radiansToDegrees(Math.PI / 16),
-        name:         "Flower",
-        axiom:        "-90 F [ + F + F ] [ - F - F ] [ + + F ] [ - - F ] F",
-        terms:        {
-            F: "F F [ + + F ] [ + F ] [ F ] [ - F ] [ - - F ]",
-        },
-    },
-
-    {
-        defaultAngle: 90,
-        name:         "Chain",
-        axiom:        "F + F + F + F",
-        terms:        {
-            F: "F + B - F - F F F + F + B - F",
-            B: "B B B",
-        },
-    },
-]
-
 try {
-    const mainCanvas          = forceGetElementById("main-canvas")           as HTMLCanvasElement
-    const predefSelect        = forceGetElementById("preset-select")         as HTMLSelectElement
-    const axiomInput          = forceGetElementById("axiom-input")           as HTMLTextAreaElement
-    const termsInputContainer = forceGetElementById("terms-input-container") as HTMLDivElement
-    const iterCountInput      = forceGetElementById("iter-count-input")      as HTMLInputElement
-    const defaultAngleInput   = forceGetElementById("default-angle-input")   as HTMLInputElement
-    const lineWidthInput      = forceGetElementById("line-width-input")      as HTMLInputElement
-    const renderButton        = forceGetElementById("render-button")         as HTMLButtonElement
+    const mainCanvas             = dom.forceGetElementById("main-canvas"              ) as HTMLCanvasElement
+    const predefSelect           = dom.forceGetElementById("preset-select"            ) as HTMLSelectElement
+    const axiomTextArea          = dom.forceGetElementById("axiom-text-area"          ) as HTMLTextAreaElement
+    const termsInputContainerDiv = dom.forceGetElementById("terms-input-container-div") as HTMLDivElement
+    const iterCountInput         = dom.forceGetElementById("iter-count-input"         ) as HTMLInputElement
+    const defaultAngleInput      = dom.forceGetElementById("default-angle-input"      ) as HTMLInputElement
+    const lineWidthInput         = dom.forceGetElementById("line-width-input"         ) as HTMLInputElement
+    const renderButton           = dom.forceGetElementById("render-button"            ) as HTMLButtonElement
+
 
     let axiom        = DEFAULT_EXPR
     let termsInfo    = new Map<string, TermInfo>()
     let iterCount    = 0
     let defaultAngle = 0
 
+
     const exprParser = new ExprParser()
     const renderer   = new Renderer(mainCanvas)
 
-    initInPredefSelect()
 
+    initPredefSelect()
     predefSelect.onchange = onPredefChange
     onPredefChange()
 
-    axiomInput.oninput = onAxiomChange
+    axiomTextArea.oninput = onAxiomChange
     onAxiomChange()
 
     iterCountInput.oninput = onIterCountChange
@@ -215,93 +66,157 @@ try {
     renderButton.onclick = onRender
     onRender()
 
-    function initInPredefSelect() {
-        for (const option of PREDEFS.map(predefToOptionElement))
+
+    // The rest of code contains function definitions only
+
+    function initPredefSelect() {
+        for (const option of predef.ARRAY.map(predefToOptionElement))
             predefSelect.appendChild(option)
 
-        if (PREDEFS.length > 0)
-            predefSelect.selectedIndex = 0
+        predefSelect.selectedIndex = 0
 
         return
 
-        function predefToOptionElement(predef: Predef, index: number): HTMLOptionElement {
-            const option = document.createElement("option")
-
-            option.innerHTML = `${index}. ${predef.name}`
-            option.value     = index.toString()
-
-            return option
+        function predefToOptionElement(predef: predef.ReadonlyPredef, index: number): HTMLOptionElement {
+            return h(
+                "option",
+                {
+                    value: index.toString()
+                },
+                `${index}. ${predef.name}`,
+            )
         }
     }
 
     function onPredefChange() {
-        const id     = Number(predefSelect.value)
-        const predef = PREDEFS[id]
+        termsInfo.clear()
+        termsInputContainerDiv.innerHTML = ""
 
-        if (predef == null)
-            return
-
-        const newDefaultAngle = predef.defaultAngle ?? 0
-        const newAxiomText    = predef.axiom
-        const newTermsText    = predef.terms        ?? {}
-
-        axiomInput.value = newAxiomText
+        dom.clearErrors(predefSelect)
 
         try {
-            axiom = exprParser.parse(newAxiomText)
-        } catch (error) {
-            addError(error, axiomInput)
-        }
+            const id        = Number(predefSelect.value)
+            const newPredef = predef.ARRAY[id]
 
-        defaultAngleInput.value = newDefaultAngle.toString()
-        defaultAngle            = newDefaultAngle
+            if (newPredef == null)
+                throw new Error(`Predef with id ${id} not found`)
 
-        const newTermsSet = new Set(Object.keys(newTermsText))
+            // Axiom Setup
 
-        updateTerms(newTermsSet, false)
-        deleteUnusedElementsInTermsInputContainer(false)
+            const newAxiomExpr = newPredef.axiom
 
-        for (const term of newTermsSet) {
-            const textAreaId = createTermExprTextAreadId(term)
-            const textArea   = document.getElementById(textAreaId) as HTMLTextAreaElement
-
-            if (textArea == null) {
-                console.error(`Missing input for term "${term}"`)
-                continue
-            }
-
-            const exprText = newTermsText[term]
-
-            textArea.value = exprText
+            axiomTextArea.value = newAxiomExpr
 
             try {
-                const expr = exprParser.parse(exprText)
-                const info = termsInfo.get(term)!
-
-                info.expr = expr
+                axiom = exprParser.parse(newAxiomExpr)
             } catch (error) {
-                addError(error, textArea)
+                dom.addError(error, axiomTextArea)
             }
+
+            // Default Angle Setup
+
+            const newDefaultAngle = newPredef.defaultAngle ?? 0
+
+            defaultAngleInput.value = newDefaultAngle.toString()
+            defaultAngle            = newDefaultAngle
+
+            // Terms Setup
+
+            if (newPredef.terms == null)
+                return
+
+            const newTermDefs = new Map(Object.entries(newPredef.terms))
+            const newTerms    = new Set(newTermDefs.keys())
+
+            updateTermsInfo(newTerms)
+
+            const termExprErrors = new Map<string, unknown>()
+
+            for (const [term, { expr, scale }] of newTermDefs) {
+                const info = forceGetTermInfo(term)
+
+                try {
+                    info.expr = exprParser.parse(expr)
+                } catch (error) {
+                    termExprErrors.set(term, error)
+                    info.expr.tree.expr = expr
+                }
+
+                if (scale != null)
+                    info.scale = scale
+            }
+
+            createMissingTermInputContainers()
+
+            for (const child of termsInputContainerDiv.children) {
+                const term = inputContainerIdToTerm(child.id)
+
+                if (term == null)
+                    continue
+
+                const error = termExprErrors.get(term)
+
+                if (error == null)
+                    continue
+
+                dom.addError(error, child)
+            }
+        } catch (error) {
+            dom.addError(error, predefSelect)
         }
     }
 
     function onAxiomChange() {
-        clearErrors(axiomInput)
-
-        try {
-            axiom = exprParser.parse(axiomInput.value)
+        dom.onExprChange(axiomTextArea, exprParser, expr => {
+            axiom = expr
 
             onExprChange()
-        } catch (error) {
-            addError(error, axiomInput)
-        }
+        })
     }
 
+    function onIterCountChange() {
+        dom.onNumberChange(iterCountInput, number => iterCount = number)
+    }
+
+    function onDefaultAngleChange() {
+        dom.onNumberChange(defaultAngleInput, number => defaultAngle = number)
+    }
+
+    function onLineWidthChange() {
+        dom.onNumberChange(lineWidthInput, number => renderer.lineWidth = number)
+    }
+
+    function onRender() {
+        const laodingElement = h("div#loading")
+
+        document.body.appendChild(laodingElement)
+
+        setTimeout(() => {
+            try {
+                const actions = render.createActions({
+                    defaultAngle,
+                    iterCount,
+                    axiom,
+                    terms: termsInfo,
+                })
+
+                renderer.render(actions)
+            } catch (error) {
+                console.error(error)
+            }
+
+            laodingElement.remove()
+        }, 0)
+    }
+
+    // Must be called every time any term's expression is changed
     function onExprChange() {
         const newTerms = evaluateNewTerms()
 
-        updateTerms(newTerms)
-        deleteUnusedElementsInTermsInputContainer()
+        updateTermsInfo(newTerms)
+
+        deleteUnusedTermInputContainers()
+        createMissingTermInputContainers()
     }
 
     function evaluateNewTerms(): Set<string> {
@@ -318,11 +233,13 @@ try {
                 if (info == null)
                     continue
 
-                for (const term of info.expr.terms)
-                    if (!newTerms.has(term)) {
-                        newReachableTerms.add(term)
-                        newTerms.add(term)
-                    }
+                for (const term of info.expr.terms) {
+                    if (newTerms.has(term))
+                        continue
+
+                    newReachableTerms.add(term)
+                    newTerms.add(term)
+                }
             }
 
             reachableTerms = newReachableTerms
@@ -331,146 +248,179 @@ try {
         return newTerms
     }
 
-    function updateTerms(newTerms: Set<string>, recursive: boolean = true) {
-        const oldTermsInfo = termsInfo
+    function updateTermsInfo(newTerms: Set<string>) {
+        deleteUnusedTermsInfo()
+        createMissingTermsInfo()
 
-        termsInfo = new Map()
+        return
 
-        outer:
-        for (const term of newTerms) {
-            if (termsInfo.has(term))
-                continue
+        function deleteUnusedTermsInfo() {
+            const toDelete = new Set<string>()
 
-            const oldInfo = oldTermsInfo.get(term)
+            for (const term of termsInfo.keys())
+                if (!newTerms.has(term))
+                    toDelete.add(term)
 
-            if (oldInfo != null) {
-                termsInfo.set(term, oldInfo)
-                continue
+            for (const term of toDelete)
+                termsInfo.delete(term)
+        }
+
+        function createMissingTermsInfo() {
+            for (const term of newTerms) {
+                if (termsInfo.has(term))
+                    continue
+
+                const info: TermInfo = {
+                    expr:  copyExpr(DEFAULT_EXPR),
+                    scale: DEFAULT_SCALE,
+                }
+
+                termsInfo.set(term, info)
             }
-
-            termsInfo.set(term, {
-                expr:  DEFAULT_EXPR,
-                scale: DEFAULT_SCALE,
-            })
-
-            const id = createTermInputContainerId(term)
-
-            for (const child of termsInputContainer.children)
-                if (child.id === id)
-                    continue outer
-
-            const container = createSetupTermInputContainer(term, recursive)
-
-            termsInputContainer.appendChild(container)
         }
     }
 
-    function deleteUnusedElementsInTermsInputContainer(recursive: boolean = true) {
+    function deleteUnusedTermInputContainers() {
         const ids = new Set<string>()
 
         for (const term of termsInfo.keys())
-            ids.add(createTermInputContainerId(term))
+            ids.add(termToInputContainerId(term))
 
-        let needUpdate = false
+        const toDelete = new Array<Element>()
 
-        for (const child of termsInputContainer.children)
-            if (!ids.has(child.id)) {
-                child.remove()
-                needUpdate = true
-            }
+        for (const child of termsInputContainerDiv.children)
+            if (!ids.has(child.id))
+                toDelete.push(child)
 
-        if (recursive && needUpdate)
-            onExprChange()
+        for (const element of toDelete)
+            element.remove()
     }
 
-    function createSetupTermInputContainer(term: string, updateOnCreate: boolean = true) {
-        const info = termsInfo.get(term)!
+    function createMissingTermInputContainers() {
+        const termsWithoutContainer = findTermsWithoutInputContainer()
 
-        return createTermInputContainer(term, {
-            initExpr:                     info.expr.tree.expr,
-            initScale:                    info.scale,
-            callOnExprChangeAfterCreate:  updateOnCreate,
-            callOnScaleChangeAfterCreate: updateOnCreate,
+        createTermInputContainers(termsWithoutContainer)
 
-            onExprChange(value) {
-                const expr = exprParser.parse(value)
-                const info = termsInfo.get(term)!
+        return
+        
+        function findTermsWithoutInputContainer(): Set<string> {
+            const termsWithContainer = new Set<string>()
+
+            for (const child of termsInputContainerDiv.children) {
+                const term = inputContainerIdToTerm(child.id)
+
+                if (term != null)
+                    termsWithContainer.add(term)
+            }
+
+            const termsWithoutContainer = new Set(termsInfo.keys())
+
+            for (const term of termsWithContainer)
+                termsWithoutContainer.delete(term)
+
+            return termsWithoutContainer
+        }
+
+        function createTermInputContainers(terms: Set<string>) {
+            for (const term of terms) {
+                const container = createTermInputContainer(term)
+
+                termsInputContainerDiv.appendChild(container)
+            }
+        }
+    }
+
+    function createTermInputContainer(term: string) {
+        const info = termsInfo.get(term)
+
+        const exprTextAreaId = `termexpr-${term}`
+        
+        const exprTextAreaLabel = h(
+            "label",
+            { htmlFor: exprTextAreaId },
+            term,
+        )
+
+        const exprTextArea = h(
+            `textarea.with-border#${exprTextAreaId}`,
+            {
+                placeholder:  "expression",
+                autocomplete: "off",
+                spellcheck:   "false",
+                value:        (info?.expr ?? DEFAULT_EXPR).tree.expr,
+                oninput:      onTermExprChange,
+            },
+            info?.expr ?? "",
+        ) as HTMLTextAreaElement
+
+
+        const scaleInputId = `termscale-${term}`
+
+        const scaleInputLabel = h(
+            "label",
+            { htmlFor: scaleInputId },
+            `${term}'s Scale`,
+        )
+
+        const scaleInput = h(
+            `input.with-border#${scaleInputId}`,
+            {
+                placeholder: "scale",
+                type:        "number",
+                value:       info?.scale ?? DEFAULT_SCALE,
+                oninput:     onTermScaleChange,
+            },
+        ) as HTMLInputElement
+
+        
+        return h(
+            `div.term.input.with-border#${termToInputContainerId(term)}`,
+
+            exprTextAreaLabel,
+            exprTextArea,
+
+            scaleInputLabel,
+            scaleInput,
+        )
+
+
+        function onTermExprChange() {
+            dom.onExprChange(exprTextArea, exprParser, expr => {
+                const info = forceGetTermInfo(term)
 
                 info.expr = expr
 
                 onExprChange()
-            },
-
-            onScaleChange(value) {
-                const info = termsInfo.get(term)!
-
-                info.scale = value
-            },
-        })
-    }
-
-    function onIterCountChange() {
-        clearErrors(iterCountInput)
-
-        try {
-            const value = Number(iterCountInput.value)
-
-            if (Number.isNaN(value))
-                throw new Error("Not a number")
-
-            if (value < 0)
-                throw new Error("Must be positive")
-
-            iterCount = value
-        } catch (error) {
-            addError(error, iterCountInput)
-        }
-    }
-
-    function onDefaultAngleChange() {
-        clearErrors(defaultAngleInput)
-
-        try {
-            const value = Number(defaultAngleInput.value)
-
-            if (Number.isNaN(value))
-                throw new Error("Not a number")
-
-            defaultAngle = value
-        } catch (error) {
-            addError(error, defaultAngleInput)
-        }
-    }
-
-    function onLineWidthChange() {
-        clearErrors(lineWidthInput)
-
-        try {
-            const value = Number(lineWidthInput.value)
-
-            if (Number.isNaN(value))
-                throw new Error("Not a number")
-
-            renderer.lineWidth = value
-        } catch (error) {
-            addError(error, lineWidthInput)
-        }
-    }
-
-    function onRender() {
-        try {
-            const actions = createActions({
-                axiom,
-                terms: termsInfo,
-                iterCount,
-                defaultAngle,
             })
+        }
 
-            renderer.render(actions)
-        } catch (error) {
-            console.error(error)
+        function onTermScaleChange() {
+            dom.onNumberChange(scaleInput, number => {
+                const info = forceGetTermInfo(term)
+
+                info.scale = number
+            })
         }
     }
-} catch (e: unknown) {
-    console.error(e)
+
+    function termToInputContainerId(term: string): string {
+        return TERM_INPUT_CONTANER_ID_PREFIX + term
+    }
+
+    function inputContainerIdToTerm(id: string): string | null {
+        return id.startsWith(TERM_INPUT_CONTANER_ID_PREFIX)
+             ? id.substring(TERM_INPUT_CONTANER_ID_PREFIX.length)
+             : null
+    }
+
+    function forceGetTermInfo(term: string): TermInfo {
+        const info = termsInfo.get(term)
+
+        if (info == null)
+            throw new Error(`${term}'s info is null`)
+
+        return info
+    }
+} catch (error: unknown) {
+    console.error(error)
 }

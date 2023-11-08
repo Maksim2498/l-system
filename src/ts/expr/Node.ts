@@ -1,54 +1,104 @@
-export type NodeType = "term"
-                     | "turn"
-                     | "concat"
-                     | "save"
-                     | "restore"
-                     | "end"
+import DeepReadonly from "ts/util/DeepReadonly"
 
-export interface NodeBase {
-    type:   NodeType
+
+export type Type = "term"
+                 | "turn"
+                 | "concat"
+                 | "save"
+                 | "restore"
+                 | "end"
+
+
+export interface Base {
+    type:   Type
     pos:    number
     length: number
     expr:   string
 }
 
-export interface TermNode extends NodeBase {
+export interface ReadonlyBase extends Readonly<Base> {}
+
+
+export interface Term extends Base {
     type: "term"
     term: string
 }
 
-export type TurnNodeAngle = number
-                          | "default-pos"
-                          | "default-neg"
+export interface ReadonlyTerm extends Readonly<Term> {}
 
-export interface TurnNode extends NodeBase {
+
+export type TurnAngle = number
+                      | "default-pos"
+                      | "default-neg"
+
+export interface Turn extends Base {
     type:  "turn"
-    angle: TurnNodeAngle
+    angle: TurnAngle
 }
 
-export interface ConcatNode extends NodeBase {
+export interface ReadonlyTurn extends Readonly<Turn> {}
+
+
+export interface Concat extends Base {
     type:  "concat"
     left:  Node
     right: Node
 }
 
-export interface SaveNode extends NodeBase {
+export interface ReadonlyConcat extends DeepReadonly<Concat> {}
+
+
+export interface Save extends Base {
     type: "save"
 }
 
-export interface RestoreNode extends NodeBase {
+export interface ReadonlySave extends Readonly<Save> {}
+
+
+export interface Restore extends Base {
     type: "restore"
 }
 
-export interface EndNode extends NodeBase {
+export interface ReadonlyRestore extends Readonly<Restore> {}
+
+
+export interface End extends Base {
     type: "end"
 }
 
-type Node = TermNode
-          | TurnNode
-          | ConcatNode
-          | SaveNode
-          | RestoreNode
-          | EndNode
+export interface ReadonlyEnd extends Readonly<End> {}
+
+
+export type Node         = Term
+                         | Turn
+                         | Concat
+                         | Save
+                         | Restore
+                         | End
+
+export type ReadonlyNode = DeepReadonly<Node>
 
 export default Node
+
+
+export function copy(node: ReadonlyNode): Node {
+    switch (node.type) {
+        case "turn":
+        case "save":
+        case "restore":
+        case "term":
+        case "end":
+            return { ...node }
+
+        case "concat":
+            return {
+                ...node,
+                left:  copy(node.left),
+                right: copy(node.right),
+            }
+
+        default:
+            const check: never = node
+            throw new Error("never")
+    }
+}

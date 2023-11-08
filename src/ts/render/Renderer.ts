@@ -1,5 +1,5 @@
-import Action from "./Action"
+import { ReadonlyAction } from "./Action"
 
 export default interface Renderer {
-    render(actions: Action[]): void
+    render(actions: ReadonlyAction[]): void
 }

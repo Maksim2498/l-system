@@ -1,74 +1,14 @@
-import BadExprError              from "./BadExprError"
-import Expr                      from "./Expr"
-import Parser                    from "./Parser"
-import Node                      from "./Node"
+import BadExprError from "./BadExprError"
+import Expr         from "./Expr"
+import Parser       from "./Parser"
 
-import { TurnNodeAngle,
-         TermNode,
-         EndNode, TurnNode,
-         SaveNode, RestoreNode } from "./Node"
+import * as node    from "./Node"
 
 export default class DefaultParser implements Parser {
     private static readonly ANGLE_REGEX      = /^(\d*\.\d+|\d+)/
     private static readonly TERM_REGEX       = /^[_a-zA-Z][_a-zA-Z0-9]*/
     private static readonly WHITESPACE_REGEX = /^\s+/
-
-    private knownTerms?: Set<string>
-
-    private terms = new Set<string>()
-    private expr  = ""
-    private pos   = 0
-
-    parse(expr: string, knownTerms?: Set<string>): Expr {
-        this.reset(expr, knownTerms)
-
-        let tree: Node = this.makeEndNode(expr)
-
-        while (this.pos < this.expr.length) {
-            this.skipWhitespace()
-
-            if (this.pos >= this.expr.length)
-                break
-
-            const token = this.parseNode()
-
-            if (tree.type === "end")
-                tree = token
-            else
-                tree = {
-                    type:   "concat",
-                    pos:    tree.pos,
-                    length: tree.length + token.length,
-                    expr:   this.expr,
-                    left:   tree,
-                    right:  token,
-                }
-        }
-
-        return {
-            terms: new Set(this.terms),
-            tree: tree,
-        }
-    }
-
-    private reset(expr: string, knownTerms?: Set<string>) {
-        this.terms.clear()
-
-        this.knownTerms = knownTerms
-        this.pos        = 0
-        this.expr       = expr
-    }
-
-    private makeEndNode(expr: string): EndNode {
-        return {
-            type:   "end",
-            pos:    expr.length,
-            length: 0,
-            expr:   expr,
-        }
-    }
-
-    private static readonly MINUS_LIKE = new Set([
+    private static readonly MINUS_LIKE       = new Set([
         "-",
         "\u2012",
         "\u2013",
@@ -77,7 +17,62 @@ export default class DefaultParser implements Parser {
         "\uFF0D",
     ])
 
-    private parseNode(): Node {
+    private knownTerms?: ReadonlySet<string>
+
+    private terms = new Set<string>()
+    private expr  = ""
+    private pos   = 0
+
+    parse(expr: string, knownTerms?: ReadonlySet<string>): Expr {
+        this.reset(expr, knownTerms)
+
+        let tree: node.Node = this.createEndNode(expr)
+
+        while (this.pos < this.expr.length) {
+            this.skipWhitespace()
+
+            if (this.pos >= this.expr.length)
+                break
+
+            const node = this.parseNode()
+
+            if (tree.type === "end")
+                tree = node
+            else
+                tree = {
+                    type:   "concat",
+                    pos:    tree.pos,
+                    length: tree.length + node.length,
+                    expr:   this.expr,
+                    left:   tree,
+                    right:  node,
+                }
+        }
+
+        return {
+            terms: new Set(this.terms),
+            tree:  tree,
+        }
+    }
+
+    private reset(expr: string, knownTerms?: ReadonlySet<string>) {
+        this.terms.clear()
+
+        this.knownTerms = knownTerms
+        this.pos        = 0
+        this.expr       = expr
+    }
+
+    private createEndNode(expr: string): node.End {
+        return {
+            type:   "end",
+            pos:    expr.length,
+            length: 0,
+            expr:   expr,
+        }
+    }
+
+    private parseNode(): node.Node {
         const char = this.expr[this.pos]
 
         switch (char) {
@@ -105,7 +100,7 @@ export default class DefaultParser implements Parser {
         }
     }
 
-    private parseTermNode(): TermNode {
+    private parseTermNode(): node.Term {
         const begin   = this.pos
         const matches = this.expr.substring(this.pos)
                                  .match(DefaultParser.TERM_REGEX)
@@ -131,7 +126,7 @@ export default class DefaultParser implements Parser {
         }
     }
 
-    private parseTurnNode(): TurnNode {
+    private parseTurnNode(): node.Turn {
         const begin = this.pos
 
         let counterClockwise: boolean
@@ -149,8 +144,8 @@ export default class DefaultParser implements Parser {
 
         this.skipWhitespace()
 
-        let angle: TurnNodeAngle = counterClockwise ? "default-neg"
-                                                    : "default-pos"
+        let angle: node.TurnAngle = counterClockwise ? "default-neg"
+                                                     : "default-pos"
 
         const matches = this.expr.substring(this.pos)
                                  .match(DefaultParser.ANGLE_REGEX)
@@ -174,21 +169,21 @@ export default class DefaultParser implements Parser {
         }
     }
 
-    private parseSaveNode(): SaveNode {
+    private parseSaveNode(): node.Save {
         return this.parseStateNode("save")
     }
 
-    private parseRestoreNode(): RestoreNode {
+    private parseRestoreNode(): node.Restore {
         return this.parseStateNode("restore")
     }
 
-    private parseStateNode(type: "save"):             SaveNode
-    private parseStateNode(type: "restore"):          RestoreNode
-    private parseStateNode(type: "save" | "restore"): SaveNode | RestoreNode
-    private parseStateNode(type: "save" | "restore"): SaveNode | RestoreNode {
-        const begin       = this.pos
-        const targetChar  = type === "save" ? "[" : "]"
-        const char        = this.expr[this.pos++]
+    private parseStateNode(type: "save"):             node.Save
+    private parseStateNode(type: "restore"):          node.Restore
+    private parseStateNode(type: "save" | "restore"): node.Save | node.Restore
+    private parseStateNode(type: "save" | "restore"): node.Save | node.Restore {
+        const begin      = this.pos
+        const targetChar = type === "save" ? "[" : "]"
+        const char       = this.expr[this.pos++]
 
         if (char !== targetChar)
             this.expected(`"${targetChar}"`)

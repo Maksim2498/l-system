@@ -1,11 +1,11 @@
 import { getLineInfo } from "ts/util/string"
 
 export default class BadExprError extends Error {
-    readonly reason: string
-    readonly expr:   string
-    readonly pos:    number
-
-    constructor(reason: string, expr: string, pos: number) {
+    constructor(
+        public readonly reason: string,
+        public readonly expr:   string,
+        public readonly pos:    number,
+    ) {
         if (pos < 0)
             throw Error(`<pos> must be positive`)
 
@@ -21,9 +21,5 @@ export default class BadExprError extends Error {
         const message     = [firstLine, secondLine, thirdLine].join("\n")
 
         super(message)
-
-        this.reason = reason
-        this.expr   = expr
-        this.pos    = pos
     }
 }

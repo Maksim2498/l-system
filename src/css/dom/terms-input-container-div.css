@@ -1,0 +1,12 @@
+#terms-input-container-div {
+    margin-top: 0 !important;
+}
+
+#terms-input-container-div > * {
+    padding: .5rem;
+    margin-top: 1rem;
+}
+
+#terms-input-container-div > .term > label:not(:first-child) {
+    margin-top: 1rem
+}

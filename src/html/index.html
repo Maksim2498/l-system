@@ -16,19 +16,17 @@
                         autocomplete="off">
                 </select>
 
-                <div class="axiom input">
+                <div class="input">
                     <label for="axiom-input">Axiom</label>
-                    <textarea id="axiom-input"
+                    <textarea id="axiom-text-area"
                               class="with-border"
                               autofocus
                               placeholder="expression"
                               autocomplete="off"
-                              autocorrect="off"
-                              autocapitalize="off"
                               spellcheck="false"></textarea>
                 </div>
 
-                <div id="terms-input-container"></div>
+                <div id="terms-input-container-div"></div>
 
                 <div class="input">
                     <label for="default-angle-input">Default angle:</label>
@@ -47,6 +45,7 @@
                            type="number"
                            autocomplete="off"
                            min="0"
+                           step="1"
                            value="5">
                 </div>
 
@@ -57,6 +56,7 @@
                            type="number"
                            autocomplete="off"
                            min="0"
+                           step="1"
                            value="1">
                 </div>
 

@@ -3,31 +3,50 @@ export type ActionType = "draw-line"
                        | "save"
                        | "restore"
 
-export interface ActionBase {
+
+export interface Base {
     type: ActionType
 }
 
-export interface DrawLineAction extends ActionBase {
+export interface ReadonlyBase extends Readonly<Base> {}
+
+
+export interface DrawLine extends Base {
     type:  "draw-line"
     scale: number
 }
 
-export interface TurnAction extends ActionBase {
+export interface ReadonlyDrawLine extends Readonly<DrawLine> {}
+
+
+export interface Turn extends Base {
     type:  "turn"
     angle: number
 }
 
-export interface SaveAction extends ActionBase {
+export interface ReadonlyTurn extends Readonly<Turn> {}
+
+
+export interface Save extends Base {
     type: "save"
 }
 
-export interface RestoreAction extends ActionBase {
+export interface ReadonlySave extends Readonly<Save> {}
+
+
+export interface Restore extends Base {
     type: "restore"
 }
 
-type Action = DrawLineAction
-            | TurnAction
-            | SaveAction
-            | RestoreAction
+export interface ReadonlyRestore extends Readonly<Restore> {}
+
+
+export type Action         = DrawLine
+                           | Turn
+                           | Save
+                           | Restore
+
+export type ReadonlyAction = Readonly<Action>
+
 
 export default Action
