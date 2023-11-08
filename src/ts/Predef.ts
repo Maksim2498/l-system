@@ -14,10 +14,11 @@ export interface ReadonlyTermDef extends Readonly<TermDef> {}
 
 
 export interface Predef {
-    name:          string
-    axiom:         string
-    defaultAngle?: number
-    terms?:        {
+    name:             string
+    axiom:            string
+    backgroundColor?: string
+    defaultAngle?:    number
+    terms?:           {
         [key: string]: TermDef
     }
 }

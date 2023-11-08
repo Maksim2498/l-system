@@ -15,6 +15,9 @@ import { TermInfo         } from "./render/util"
 
 const TERM_INPUT_CONTANER_ID_PREFIX = "term-"
 
+const DEFAULT_DEFAULT_ANGLE    = 0
+const DEFAULT_BACKGROUND_COLOR = "#FFFFFF"
+
 const DEFAULT_LINE_WIDTH: number       = 1
 const DEFAULT_COLOR:      string       = "#000"
 const DEFAULT_SCALE:      number       = 1
@@ -35,6 +38,7 @@ try {
     const termsInputContainerDiv = dom.forceGetElementById("terms-input-container-div") as HTMLDivElement
     const iterCountInput         = dom.forceGetElementById("iter-count-input"         ) as HTMLInputElement
     const defaultAngleInput      = dom.forceGetElementById("default-angle-input"      ) as HTMLInputElement
+    const backgroundColorInput   = dom.forceGetElementById("background-color-input"   ) as HTMLInputElement
     const renderButton           = dom.forceGetElementById("render-button"            ) as HTMLButtonElement
 
 
@@ -60,6 +64,9 @@ try {
 
     defaultAngleInput.oninput = onDefaultAngleChange
     onDefaultAngleChange()
+
+    backgroundColorInput.oninput = onBackgroundColorChange
+    onBackgroundColorChange()
 
     renderButton.onclick = onRender
     onRender()
@@ -113,10 +120,17 @@ try {
 
             // Default Angle Setup
 
-            const newDefaultAngle = newPredef.defaultAngle ?? 0
+            const newDefaultAngle = newPredef.defaultAngle ?? DEFAULT_DEFAULT_ANGLE
 
             defaultAngleInput.value = newDefaultAngle.toString()
             defaultAngle            = newDefaultAngle
+
+            // Background Color Setup
+
+            const newBackgroundColor = newPredef.backgroundColor ?? DEFAULT_BACKGROUND_COLOR
+
+            backgroundColorInput.value = newBackgroundColor
+            renderer.backgroundColor   = newBackgroundColor
 
             // Terms Setup
 
@@ -184,6 +198,10 @@ try {
 
     function onDefaultAngleChange() {
         dom.onNumberChange(defaultAngleInput, number => defaultAngle = number)
+    }
+
+    function onBackgroundColorChange() {
+        renderer.backgroundColor = backgroundColorInput.value
     }
 
     function onRender() {

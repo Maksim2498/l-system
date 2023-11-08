@@ -24,7 +24,8 @@ interface ReadonlyVisualLine extends Readonly<VisualLine> {}
 
 
 export default class CanvasRenderer implements Renderer{
-    padding: Vec2 = [25, 25]
+    backgroundColor: string = "white"
+    padding:         Vec2   = [25, 25]
 
     private ctx:           CanvasRenderingContext2D
     private baseLineScale: number = 100
@@ -129,6 +130,10 @@ export default class CanvasRenderer implements Renderer{
 
     private drawLines(lines: ReadonlyVisualLine[]) {
         this.ctx.save()
+
+        this.ctx.fillStyle = this.backgroundColor
+
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
 
         for (const { from, to, width, color } of lines) {
             if (width === 0) {
